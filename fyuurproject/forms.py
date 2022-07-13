@@ -1,20 +1,64 @@
 from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms.validators import DataRequired, AnyOf, URL, ValidationError
+from fyuurproject.models import *
+from enum import Enum, auto, unique
 
 class ShowForm(Form):
     artist_id = StringField(
-        'artist_id'
+        'artist_id', validators = [DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id', validators = [DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
         validators=[DataRequired()],
         default= datetime.today()
     )
+    def validate_artist_id(self, artist_id):
+        artist = Artist.query.filter_by(id=artist_id.data).first()
+        if not artist:
+            raise ValidationError('Artist does not exist')
+    def validate_venue_id(self, venue_id):
+        venue = Venue.query.filter_by(id=venue_id.data).first()
+        if not venue:
+            raise ValidationError('Venue does not exist')
+    def validate_start_time(form,field):
+        show = Show.query.filter(Show.artist_id == form.artist_id.data).filter(Show.start_time == form.start_time.data).all()
+        if show:
+            raise ValidationError('Your selected artist will not be available for the show')
+
+
+@unique
+class Genres(Enum):
+    ALTERNATIVE = 'Alternative'
+    BLUES = 'Blues'
+    CLASSICAL = 'Classical'
+    COUNTRY = 'Country'
+    ELECTRONIC = 'Electronic'
+    FOLK = 'Folk'
+    FUNK = 'Funk'
+    HIP_HOP = 'Hip-Hop'
+    HEAVY_METAL  = 'Heavy metal'
+    INSTRUMENTAL = 'Instrumental'
+    JAZZ = 'Jazz'
+    MUSICA_THEATRE = 'Musical Theatre' 
+    POP = 'Pop'
+    PUNK = 'Punk'
+    R_B = 'R&B'
+    REGGAE = 'Reggae'
+    ROCK_N_ROLL = 'Rock n Roll'
+    SOUL = 'Soul'
+    OTHER = 'Other'
+
+@unique
+class url(Enum):
+    WWW = 'www.'
+    HTTPS = 'https://'
+    HTTP = 'http://'
+
 
 class VenueForm(Form):
     name = StringField(
@@ -91,27 +135,7 @@ class VenueForm(Form):
     genres = SelectMultipleField(
         # TODO implement enum restriction
         'genres', validators=[DataRequired()],
-        choices=[
-            ('Alternative', 'Alternative'),
-            ('Blues', 'Blues'),
-            ('Classical', 'Classical'),
-            ('Country', 'Country'),
-            ('Electronic', 'Electronic'),
-            ('Folk', 'Folk'),
-            ('Funk', 'Funk'),
-            ('Hip-Hop', 'Hip-Hop'),
-            ('Heavy Metal', 'Heavy Metal'),
-            ('Instrumental', 'Instrumental'),
-            ('Jazz', 'Jazz'),
-            ('Musical Theatre', 'Musical Theatre'),
-            ('Pop', 'Pop'),
-            ('Punk', 'Punk'),
-            ('R&B', 'R&B'),
-            ('Reggae', 'Reggae'),
-            ('Rock n Roll', 'Rock n Roll'),
-            ('Soul', 'Soul'),
-            ('Other', 'Other'),
-        ]
+        choices=[item.value for item in Genres]
     )
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
@@ -126,7 +150,57 @@ class VenueForm(Form):
         'seeking_description'
     )
 
+    # def validate_facebook_link(field):
+    #     if field.data[0:4] != 'www.':
+    #         raise ValidationError ('Invalid url')
 
+    def validate_website_link(self, field):
+        if field.data[0:4] != 'www.':
+            raise ValidationError ('Invalid url')
+
+    def validate_phone(self,field):
+        if not field.data.isdigit():
+            raise ValidationError('Your phone number should be digits')
+
+    
+
+            
+
+        
+
+
+
+
+
+
+
+@unique
+class Genres(Enum):
+    ALTERNATIVE = 'Alternative'
+    BLUES = 'Blues'
+    CLASSICAL = 'Classical'
+    COUNTRY = 'Country'
+    ELECTRONIC = 'Electronic'
+    FOLK = 'Folk'
+    FUNK = 'Funk'
+    HIP_HOP = 'Hip-Hop'
+    HEAVY_METAL  = 'Heavy metal'
+    INSTRUMENTAL = 'Instrumental'
+    JAZZ = 'Jazz'
+    MUSICA_THEATRE = 'Musical Theatre' 
+    POP = 'Pop'
+    PUNK = 'Punk'
+    R_B = 'R&B'
+    REGGAE = 'Reggae'
+    ROCK_N_ROLL = 'Rock n Roll'
+    SOUL = 'Soul'
+    OTHER = 'Other'
+
+@unique
+class url(Enum):
+    WWW = 'www.'
+    HTTPS = 'https://'
+    HTTP = 'http://'
 
 class ArtistForm(Form):
     name = StringField(
@@ -193,34 +267,14 @@ class ArtistForm(Form):
     )
     phone = StringField(
         # TODO implement validation logic for state
-        'phone'
+        'phone', validators=[DataRequired()]
     )
     image_link = StringField(
         'image_link'
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired()],
-        choices=[
-            ('Alternative', 'Alternative'),
-            ('Blues', 'Blues'),
-            ('Classical', 'Classical'),
-            ('Country', 'Country'),
-            ('Electronic', 'Electronic'),
-            ('Folk', 'Folk'),
-            ('Funk', 'Funk'),
-            ('Hip-Hop', 'Hip-Hop'),
-            ('Heavy Metal', 'Heavy Metal'),
-            ('Instrumental', 'Instrumental'),
-            ('Jazz', 'Jazz'),
-            ('Musical Theatre', 'Musical Theatre'),
-            ('Pop', 'Pop'),
-            ('Punk', 'Punk'),
-            ('R&B', 'R&B'),
-            ('Reggae', 'Reggae'),
-            ('Rock n Roll', 'Rock n Roll'),
-            ('Soul', 'Soul'),
-            ('Other', 'Other'),
-        ]
+        choices=[item.value for item in Genres]
      )
     facebook_link = StringField(
         # TODO implement enum restriction
@@ -237,3 +291,10 @@ class ArtistForm(Form):
             'seeking_description'
      )
 
+    def validate_website_link(self,field):
+        if field.data[0:4] != 'www.':
+            raise ValidationError ('Invalid url')
+
+    def validate_phone(self,field):
+        if not field.data.isdigit():
+            raise ValidationError('Your phone number should be digits')

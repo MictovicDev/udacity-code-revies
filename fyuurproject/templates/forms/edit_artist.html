@@ -3,6 +3,10 @@
 {% block content %}
   <div class="form-wrapper">
     <form class="form" method="post" action="/artists/{{artist.id}}/edit">
+      {{form.hidden_tag()}}
+      {%if errors%}
+      {{error}}
+      {%endif%}
       <h3 class="form-heading">Edit artist <em>{{ artist.name }}</em></h3>
       <div class="form-group">
         <label for="name">Name</label>
@@ -21,7 +25,16 @@
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+    {% if form.phone.errors %}
+           {{form.phone(class = "form-control form-control-lg is-invalid")}}
+      <div class="invalid-feedback">
+        {% for error in form.phone.errors %}
+          <span>{{error}}</span>
+        {%endfor%} 
+      </div>
+    {%else%}
+       {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+    {%endif%}
         </div>
       <div class="form-group">
         <label for="genres">Genres</label>
@@ -30,9 +43,17 @@
       </div>
       <div class="form-group">
           <label for="facebook_link">Facebook Link</label>
-          {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% if form.facebook_link.errors %}
+           {{form.facebook_link(class = "form-control form-control-lg is-invalid")}}
+      <div class="invalid-feedback">
+        {% for error in form.facebook_link.errors %}
+          <span>{{error}}</span>
+        {%endfor%} 
+      </div>
+    {%else%}
+       {{ form.facebook_link(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+    {%endif%}
         </div>
-      
       <div class="form-group">
           <label for="image_link">Image Link</label>
           {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
@@ -40,7 +61,16 @@
 
       <div class="form-group">
             <label for="website_link">Website Link</label>
-            {{ form.website_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+      {% if form.website_link.errors %}
+            {{form.website_link(class = "form-control form-control-lg is-invalid")}}
+       <div class="invalid-feedback">
+         {% for error in form.website_link.errors %}
+           <span>{{error}}</span>
+         {%endfor%} 
+       </div>
+     {%else%}
+        {{ form.website_link(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+     {%endif%}
       </div>
 
       <div class="form-group">

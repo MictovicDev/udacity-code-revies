@@ -2,7 +2,11 @@
 {% block title %}Edit Venue{% endblock %}
 {% block content %}
   <div class="form-wrapper">
+    {%if errors%}
+    {{error}}
+    {%endif%}
     <form class="form" method="post" action="/venues/{{venue.id}}/edit">
+      {{form.hidden_tag()}}
       <h3 class="form-heading">Edit venue <em>{{ venue.name }}</em> <a href="{{ url_for('index') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
       <div class="form-group">
         <label for="name">Name</label>
@@ -25,7 +29,16 @@
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+    {% if form.phone.errors %}
+           {{form.phone(class = "form-control form-control-lg is-invalid")}}
+      <div class="invalid-feedback">
+        {% for error in form.phone.errors %}
+          <span>{{error}}</span>
+        {%endfor%} 
+      </div>
+    {%else%}
+       {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+    {%endif%}
         </div>
       <div class="form-group">
         <label for="genres">Genres</label>
